@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "hosts": ["localhost"],
+      "port": 2222,
+      "streams": [
+        {
+          "source": ["NETCONF"],
+          "destination": ["CUSTOM"]
+        },
+        {
+          "source": ["S1", "S2", "S3"],
+          "destination": ["BUNDLE"]
+        },
+        {
+          "source": ["MULTICAST"],
+          "destination": ["M1", "M2", "M3"]
+        }
+      ]
+    }
+  ]
+}
