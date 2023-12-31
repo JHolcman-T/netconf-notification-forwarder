@@ -177,7 +177,6 @@ class Server(asyncssh.SSHServer):
                         print(err)
                         client_handler.send(err)
                         raise SystemError(f"Unsupported: {rpc.data}")
-                print("END")
             except Exception as exc:
                 print(f"EXC: {exc}")
                 break
