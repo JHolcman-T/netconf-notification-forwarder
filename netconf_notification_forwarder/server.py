@@ -35,7 +35,7 @@ class _ServerCallbacks(asyncssh.SSHServer):
 
 
 class Server(asyncssh.SSHServer):
-    def __init__(self, ipaddress: str, port: int, settings: settings.settings = None):
+    def __init__(self, ipaddress: str, port: int, settings: settings.Settings = None):
         self.ipaddress = ipaddress
         self.port = port
         self.host_keys = ["host_key"]
