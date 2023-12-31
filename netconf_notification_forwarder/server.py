@@ -1,6 +1,5 @@
 import asyncssh, sys, asyncio
 from typing import Optional, List
-import xml.etree.ElementTree as ET
 from .client_handler import ClientHandler
 from .subscribtion_manager import SubscriptionManager, Status
 from . import models
