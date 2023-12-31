@@ -2,8 +2,6 @@ from . import util
 from uuid import uuid4
 import asyncio, asyncssh
 from dataclasses import dataclass
-from typing import List
-
 
 @dataclass
 class Connection:
@@ -48,29 +46,8 @@ class Subscriber:
     def register_stream(self, stream: str):
         self.subscribtions[stream] = list()
 
-    def _connection_exists(self, ip_address: str, port: int) -> bool:
-        ip_entry = self.connections.get(ip_address)
-        if not ip_entry:
-            return False
-
-        port_entry = ip_entry.get(port)
-        if not port_entry:
-            return False
-
-        return True
-
     def _establish_connection(self, ip_address: str, port: int):
-        if ip_address not in self.connections:
-            self.connections[ip_address] = {
-                port: Connection.create(ip_address, port),
-            }
-        elif port not in self.connections[ip_address]:
-            self.connections[ip_address][port] = Connection.create(ip_address, port)
-        else:
-            print("Connection already established")
-            return self.connections[ip_address][port]
-
-        connection = self.connections[ip_address][port]
+        connection = Connection.create(ip_address, port)
         self._send_hello(connection)
         return connection
 
@@ -148,10 +125,7 @@ class Subscriber:
         if stream not in self.subscribtions:
             print(f"Stream={stream} is not registered!")
             return None
-        if not self._connection_exists(ip_address, port):
-            connection = self._establish_connection(ip_address, port)
-        else:
-            connection = self.connections[ip_address][port]
+        connection = self._establish_connection(ip_address, port)
         self._send_create_subscription(connection, stream)
 
         self.subscribtions[stream].append(connection)
