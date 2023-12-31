@@ -32,6 +32,12 @@ class Settings:
     def get_streams(self):
         return {stream for rule in self.rules for stream in rule.get_streams()}
 
+    def get_source_streams(self):
+        return {stream for rule in self.rules for stream in rule.get_source_streams()}
+
+    def get_destination_streams(self):
+        return {stream for rule in self.rules for stream in rule.get_destination_streams()}
+
     @staticmethod
     def from_file(path: str):
         with open(path, "r") as settings_file:
@@ -56,10 +62,3 @@ class Settings:
             )
             rules.append(rule_obj)
         return Settings(rules=rules)
-
-
-settings = Settings.from_file(
-    "C:\\Users\\kubih\\GitRepository\\netconf-notification-forwarder\\tests\\stream-routes.json"
-)
-print(settings)
-print(settings.rules[0].streams[0])

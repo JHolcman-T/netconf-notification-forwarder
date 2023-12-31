@@ -1,5 +1,5 @@
 import asyncssh, sys, asyncio
-from typing import Optional
+from typing import Optional, List
 import xml.etree.ElementTree as ET
 from .client_handler import ClientHandler
 from .subscribtion_manager import SubscriptionManager, Status
@@ -50,9 +50,12 @@ class Server(asyncssh.SSHServer):
             self.router = router.Router(dict())
 
     def _init_settings(self):
-        streams = self.settings.get_streams()
-        # TODO: Don't expose source streams to client if not defined in configuration file
-        self.register_streams(streams)
+        source_streams = self.settings.get_source_streams()
+        destination_streams = self.settings.get_destination_streams()
+        self.register_source_streams(source_streams)
+        self.register_destination_streams(destination_streams)
+
+        # TODO: Separate routing table per rule
         for rule in self.settings.rules:  # type: settings.Rule
             for host in rule.hosts:
                 for stream in rule.get_source_streams():
@@ -67,13 +70,23 @@ class Server(asyncssh.SSHServer):
                         router_map[stream] = set(stream_route.destination)
             self.router = router.Router(router_map)
 
-    def register_stream(self, stream: str):
-        self.subscription_manager.register_stream(stream)
+    def reload_settings(self):
+        if self.settings is not None:
+            self._init_settings()
+
+    def register_source_stream(self, stream: str):
         self.notifications_subscriber.register_stream(stream)
 
-    def register_streams(self, streams: list):
+    def register_destination_stream(self, stream: str):
+        self.subscription_manager.register_stream(stream)
+
+    def register_source_streams(self, streams: List[str]):
         for stream in streams:
-            self.register_stream(stream)
+            self.register_source_stream(stream)
+
+    def register_destination_streams(self, streams: List[str]):
+        for stream in streams:
+            self.register_destination_stream(stream)
 
     # @staticmethod
     async def handle_client(self, process: asyncssh.SSHServerProcess) -> None:
@@ -198,7 +211,10 @@ class Server(asyncssh.SSHServer):
             destinations = self.router.get(notification.stream)
             for destination_stream in destinations:
                 for client in self.subscription_manager.get_subscriptions(destination_stream):
-                    print(f"Re-sending {notification} to client={client}")
+                    print(
+                        f"Re-sending Notification from stream={notification.stream} to client={client} on"
+                        f" stream={destination_stream}"
+                    )
                     client.send(util.to_message(notification.payload))
 
     async def start(self):

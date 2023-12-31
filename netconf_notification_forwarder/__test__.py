@@ -5,7 +5,7 @@ if __name__ == "__main__":
     print(f"Test: {__file__}")
     loop = asyncio.get_event_loop()
     server = Server("127.0.0.1", 2222)
-    server.register_streams(
+    server.register_destination_streams(
         [
             "NETCONF",
             "MULTICAST",
