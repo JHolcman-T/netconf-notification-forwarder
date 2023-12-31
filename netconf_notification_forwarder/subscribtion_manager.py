@@ -11,7 +11,6 @@ class SubscriptionManager:
     def __init__(self):
         self._streams = set()
         self._subscriptions = dict()
-        self.register_stream("NETCONF")
 
     def get_subscriptions(self, stream: str = None, copy: bool = True):
         if copy:
