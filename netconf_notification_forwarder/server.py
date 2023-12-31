@@ -184,27 +184,6 @@ class Server(asyncssh.SSHServer):
         process.exit(0)
 
     async def send(self):
-        notifi = (
-            '<?xml version="1.0" encoding="UTF-8"?>\n'
-            + '<notification xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">\n'
-            + "    <eventTime>2011-01-04T12:30:46</eventTime>\n"
-            + '    <event xmlns="http://www.hp.com/netconf/event:1.0">\n'
-            + "        <Group>DEV</Group>\n"
-            + "        <Code>FAN_DIRECTION_NOT_PREFERRED</Code>\n"
-            + "        <Slot>6</Slot>\n"
-            + "        <Severity>Alert</Severity>\n"
-            + "        <context>Fan 1 airflow direction is not preferred on slot 6, please check it.</context>\n"
-            + "    </event>\n"
-            + "</notification>]]>]]>\n"
-        )
-        while True:
-            await asyncio.sleep(10)
-            for stream, clients in self.subscription_manager.get_subscriptions().items():
-                for client in clients:
-                    print(f"Stream: {stream} Client: {client}")
-                    client.send(notifi)
-
-    async def send2(self):
         async for notification in self.notifications_subscriber.notifications():
             destinations = self.router.get(notification.stream)
             for destination_stream in destinations:
@@ -216,6 +195,7 @@ class Server(asyncssh.SSHServer):
                     client.send(util.to_message(notification.payload))
 
     async def start(self):
+        asyncio.get_event_loop().create_task(self.send())
         await asyncssh.create_server(
             _ServerCallbacks,
             self.ipaddress,

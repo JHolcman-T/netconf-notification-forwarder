@@ -10,7 +10,6 @@ if __name__ == "__main__":
     )
     server = Server("127.0.0.1", 3333, settings)
     try:
-        loop.create_task(server.send2())
         loop.run_until_complete(server.start())
     except (OSError, asyncssh.Error, KeyboardInterrupt) as exc:
         sys.exit(f"Error: {exc}")
