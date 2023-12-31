@@ -3,6 +3,7 @@ from uuid import uuid4
 import asyncio, asyncssh
 from dataclasses import dataclass
 
+
 @dataclass
 class Connection:
     ssh_connection: asyncssh.SSHClientConnection
