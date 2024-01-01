@@ -4,22 +4,32 @@ import asyncio, sys, asyncssh
 if __name__ == "__main__":
     print(f"Test: {__file__}")
     loop = asyncio.get_event_loop()
+    source_streams = [
+        [
+            "NETCONF",
+            "S1",
+        ],
+        [
+            "NETCONF",
+            "S1",
+        ],
+        [
+            "NETCONF",
+            "S2",
+        ],
+        [
+            "S3",
+            "MULTICAST",
+        ],
+    ]
     server_instances = list()
-    for index in range(1, 2 + 1):
+    for index, streams in enumerate(source_streams, 1):
         ip_address = f"127.0.0.{index}"
         port = 2222
         print(f"Server-{index}: {ip_address=}, {port=}")
 
         server = Server(ip_address, port)
-        server.register_streams(
-            [
-                "NETCONF",
-                "S1",
-                "S2",
-                "S3",
-                "MULTICAST",
-            ],
-        )
+        server.register_streams(streams)
         server_instances.append(server)
     try:
         loop.run_until_complete(

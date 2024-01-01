@@ -1,20 +1,44 @@
 {
   "rules": [
     {
-      "hosts": ["127.0.0.1","127.0.0.2"],
+      "hosts": ["127.0.0.1", "127.0.0.2"],
       "port": 2222,
       "streams": [
         {
           "source": ["NETCONF"],
-          "destination": ["CUSTOM"]
+          "destination": ["CUSTOM-1"]
         },
         {
-          "source": ["S1", "S2", "S3"],
+          "source": ["S1"],
+          "destination": ["BUNDLE"]
+        }
+      ]
+    },
+    {
+      "hosts": ["127.0.0.3"],
+      "port": 2222,
+      "streams": [
+        {
+          "source": ["NETCONF"],
+          "destination": ["CUSTOM-2"]
+        },
+        {
+          "source": ["S2"],
+          "destination": ["BUNDLE"]
+        }
+      ]
+    },
+    {
+      "hosts": ["127.0.0.4"],
+      "port": 2222,
+      "streams": [
+        {
+          "source": ["S3"],
           "destination": ["BUNDLE"]
         },
         {
           "source": ["MULTICAST"],
-          "destination": ["M1", "M2", "M3"]
+          "destination": ["M1", "M2"]
         }
       ]
     }
