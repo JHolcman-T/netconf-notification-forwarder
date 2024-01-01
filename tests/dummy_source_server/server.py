@@ -63,7 +63,6 @@ class Server(asyncssh.SSHServer):
         capability_msg = util.to_message(capability)
         process.stdout.write(capability_msg)
 
-        # TODO: implement reading NETCONF xml RPCs
         while True:
             try:
                 rpc = await client_handler.read()
