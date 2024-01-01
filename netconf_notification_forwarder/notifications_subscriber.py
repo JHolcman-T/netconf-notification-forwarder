@@ -2,10 +2,13 @@ from . import util
 from uuid import uuid4
 import asyncio, asyncssh
 from dataclasses import dataclass
+from typing import Tuple
 
 
 @dataclass
 class Connection:
+    ip_address: str
+    port: int
     ssh_connection: asyncssh.SSHClientConnection
     reader: asyncssh.SSHReader
     writer: asyncssh.SSHWriter
@@ -25,7 +28,7 @@ class Connection:
         writer, reader, errs = asyncio.get_event_loop().run_until_complete(
             connection.open_session(),
         )
-        return Connection(connection, reader, writer, errs)
+        return Connection(ip_address, port, connection, reader, writer, errs)
 
     def send(self, msg):
         self.writer.write(msg)
@@ -33,6 +36,7 @@ class Connection:
 
 @dataclass
 class Notification:
+    source: Tuple[str, int]
     stream: str
     payload: str
 
@@ -106,6 +110,7 @@ class Subscriber:
         while True:
             notification = await connection.reader.readuntil("]]>]]>")
             notification = Notification(
+                (connection.ip_address, connection.port),
                 stream,
                 notification.removesuffix("]]>]]>"),
             )
@@ -135,7 +140,10 @@ class Subscriber:
     def unsubscribe(self, ip_address, port, stream):
         connections = self.subscribtions.get(stream, [])
         connections = list(
-            filter(lambda x: x.ssh_connection._host == ip_address and x.ssh_connection._port == port, connections[0])
+            filter(
+                lambda x: x.ip_address == ip_address and x.port == port,
+                connections[0],
+            ),
         )
         if len(connections) >= 1:
             connection = connections[0]

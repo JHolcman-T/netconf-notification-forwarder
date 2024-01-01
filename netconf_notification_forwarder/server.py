@@ -47,10 +47,9 @@ class Server(asyncssh.SSHServer):
         self.subscription_manager = SubscriptionManager()
         self.notifications_subscriber = notifications_subscriber.Subscriber()
         self.settings = settings
+        self.router = router.Router()
         if self.settings is not None:
             self._init_settings()
-        else:
-            self.router = router.Router(dict())
 
     def _init_settings(self):
         source_streams = self.settings.get_source_streams()
@@ -58,20 +57,24 @@ class Server(asyncssh.SSHServer):
         self.register_source_streams(source_streams)
         self.register_destination_streams(destination_streams)
 
-        # TODO: Separate routing table per rule
         for rule in self.settings.rules:  # type: settings.Rule
+            # create route mappings
+            route_map = dict()
+            for stream_route in rule.streams:
+                for stream in stream_route.source:
+                    map_entry = route_map.get(stream, False)
+                    if map_entry:
+                        route_map[stream].update(set(stream_route.destination))
+                    else:
+                        route_map[stream] = set(stream_route.destination)
+
+            # add routes to table
+            self.router.add_route_map_table_entry(rule.hosts, rule.port, route_map)
+
+            # subscribe to notification sources
             for host in rule.hosts:
                 for stream in rule.get_source_streams():
                     self.notifications_subscriber.subscribe(host, rule.port, stream)
-            router_map = dict()
-            for stream_route in rule.streams:
-                for stream in stream_route.source:
-                    map_entry = router_map.get(stream, False)
-                    if map_entry:
-                        router_map[stream].update(set(stream_route.destination))
-                    else:
-                        router_map[stream] = set(stream_route.destination)
-            self.router = router.Router(router_map)
 
     def reload_settings(self):
         if self.settings is not None:
@@ -189,12 +192,19 @@ class Server(asyncssh.SSHServer):
 
     async def send(self):
         async for notification in self.notifications_subscriber.notifications():
-            destinations = self.router.get(notification.stream)
+            source_address = notification.source[0]
+            source_port = notification.source[1]
+            source_stream = notification.stream
+            destinations = self.router.get_destinations(
+                source_address,
+                source_port,
+                source_stream,
+            )
             for destination_stream in destinations:
                 for client in self.subscription_manager.get_subscriptions(destination_stream):
                     print(
-                        f"Re-sending Notification from stream={notification.stream} to client={client} on"
-                        f" stream={destination_stream}"
+                        f"Re-sending Notification from source={notification.source} on stream={notification.stream} to"
+                        f" client={client} on stream={destination_stream}"
                     )
                     client.send(util.to_message(notification.payload))
 
