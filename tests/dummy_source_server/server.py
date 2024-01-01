@@ -150,6 +150,8 @@ class Server(asyncssh.SSHServer):
                         '<notification xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">\n'
                         f"  <eventTime>{iso_date}</eventTime>\n"
                         '  <event xmlns="http://www.jakub-holcman.com/netconf/event:1.0">\n'
+                        f"    <server-address>{self.ipaddress}</server-address>\n"
+                        f"    <server-port>{self.port}</server-port>\n"
                         f"    <stream-name>{stream}</stream-name>\n"
                         "  </event>\n"
                         "</notification>]]>]]>\n"
