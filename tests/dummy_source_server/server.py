@@ -157,6 +157,7 @@ class Server(asyncssh.SSHServer):
                     client.send(notification_content)
 
     async def start(self):
+        asyncio.get_event_loop().create_task(self.send())
         await asyncssh.create_server(
             _ServerCallbacks,
             self.ipaddress,
