@@ -1,8 +1,9 @@
 import argparse
 import dataclasses
 from enum import StrEnum, auto, unique
+from . import version
 
-VERSION = "0.0.1"
+
 parser = argparse.ArgumentParser(
     description="Simple NETCONF notifications forwarder that re-sends NETCONF notifications on another stream.",
     epilog="jakub-holcman.com",
@@ -30,7 +31,7 @@ parser.add_argument(
         "--version",
     ],
     action="version",
-    version=f"%(prog)s {VERSION}",
+    version=f"%(prog)s {version.__version__}",
 )
 
 parser.add_argument(
