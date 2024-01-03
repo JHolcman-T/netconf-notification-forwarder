@@ -1,6 +1,5 @@
 from netconf_notification_forwarder.server import Server
 from netconf_notification_forwarder.server import settings
-import netconf_notification_forwarder.logger.logger
 import asyncio, sys, asyncssh
 import netconf_notification_forwarder.cli as cli
 
