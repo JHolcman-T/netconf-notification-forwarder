@@ -7,7 +7,6 @@ import netconf_notification_forwarder.cli as cli
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     arguments = cli.get_arguments()
-    print(arguments)
     settings = settings.Settings.from_file(arguments.config_file)
     server = Server("127.0.0.1", 3333, settings)
     try:
