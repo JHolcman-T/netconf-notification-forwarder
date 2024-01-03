@@ -45,7 +45,6 @@ class Notification:
 class Subscriber:
     def __init__(self):
         self.subscribtions = dict()
-        self.register_stream("NETCONF")
         self._queue = asyncio.Queue()
         self.log = get_logger("notifications-subscriber")
 
