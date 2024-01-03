@@ -18,7 +18,6 @@ class ClientHandler:
         data = await self.process.stdin.readuntil("]]>]]>")
         data = data.removesuffix("]]>]]>")
         out = None
-        print(data)
         if "create-subscription" in data:
             out = models.Subscription.from_message(data)
         elif "kill-session" in data:

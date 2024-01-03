@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 from typing import Union, List
+from . import get_logger
 
 
 class Router:
     def __init__(self):
         self._route_map_table = dict()
         self._hosts_map = dict()
+        self.log = get_logger("router")
 
     @dataclass
     class _TableEntry:

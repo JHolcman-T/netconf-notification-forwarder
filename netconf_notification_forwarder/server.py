@@ -9,6 +9,7 @@ from . import notifications_subscriber
 from . import router
 from . import settings
 from . import util
+from . import get_logger
 from .client_handler import ClientHandler
 from .subscribtion_manager import SubscriptionManager, Status
 
@@ -48,6 +49,7 @@ class Server(asyncssh.SSHServer):
         self.notifications_subscriber = notifications_subscriber.Subscriber()
         self.settings = settings
         self.router = router.Router()
+        self.log = get_logger("server")
         if self.settings is not None:
             self._init_settings()
 
@@ -75,6 +77,9 @@ class Server(asyncssh.SSHServer):
             for host in rule.hosts:
                 for stream in rule.get_source_streams():
                     self.notifications_subscriber.subscribe(host, rule.port, stream)
+
+        msg = {"route-map-table": self.router.route_map_table}
+        self.log.debug(msg)
 
     def reload_settings(self):
         if self.settings is not None:
@@ -126,7 +131,7 @@ class Server(asyncssh.SSHServer):
                                 ' xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"'
                                 f' message-id="{message_id}"><ok/></rpc-reply>]]>]]>'
                             )
-                            print(ok)
+                            self.log.info(ok)
                             client_handler.send(ok)
                         else:
                             err = (
@@ -144,7 +149,7 @@ class Server(asyncssh.SSHServer):
                                 "</rpc-error>"
                                 "</rpc-reply>]]>]]>"
                             )
-                            print(err)
+                            self.log.info(err)
                             client_handler.send(err)
                     elif rpc.type == models.RPCs.KillSession:
                         message_id = rpc.message_id
@@ -153,7 +158,7 @@ class Server(asyncssh.SSHServer):
                             ' xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"'
                             f' message-id="{message_id}"><ok/></rpc-reply>]]>]]>'
                         )
-                        print(ok)
+                        self.log.info(ok)
                         client_handler.send(ok)
                         break
                     elif rpc.type == models.RPCs.CloseSession:
@@ -163,7 +168,7 @@ class Server(asyncssh.SSHServer):
                             ' xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"'
                             f' message-id="{message_id}"><ok/></rpc-reply>]]>]]>'
                         )
-                        print(ok)
+                        self.log.info(ok)
                         client_handler.send(ok)
                         break
                     elif rpc.type == models.RPCs.Unsupported:
@@ -179,11 +184,11 @@ class Server(asyncssh.SSHServer):
                             "</rpc-error>"
                             "</rpc-reply>]]>]]>"
                         )
-                        print(err)
+                        self.log.info(err)
                         client_handler.send(err)
                         raise SystemError(f"Unsupported: {rpc.data}")
             except Exception as exc:
-                print(f"EXC: {exc}")
+                self.log.warning(f"EXC: {exc}")
                 break
         self.clients.remove(client_handler)
         self.subscription_manager.disconnect_client(client_handler)
@@ -201,7 +206,7 @@ class Server(asyncssh.SSHServer):
             )
             for destination_stream in destinations:
                 for client in self.subscription_manager.get_subscriptions(destination_stream):
-                    print(
+                    self.log.info(
                         f"Re-sending Notification from source={notification.source} on stream={notification.stream} to"
                         f" client={client} on stream={destination_stream}"
                     )

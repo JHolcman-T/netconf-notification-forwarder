@@ -3,6 +3,7 @@ from uuid import uuid4
 import asyncio, asyncssh
 from dataclasses import dataclass
 from typing import Tuple
+from . import get_logger
 
 
 @dataclass
@@ -44,11 +45,12 @@ class Notification:
 class Subscriber:
     def __init__(self):
         self.subscribtions = dict()
-        self.register_stream("NETCONF")
         self._queue = asyncio.Queue()
+        self.log = get_logger("notifications-subscriber")
 
     def register_stream(self, stream: str):
         self.subscribtions[stream] = list()
+        self.log.debug(f"Registered {stream=}")
 
     def _establish_connection(self, ip_address: str, port: int):
         connection = Connection.create(ip_address, port)
@@ -124,16 +126,17 @@ class Subscriber:
 
     async def print_notifi(self):
         async for ele in self.notifications():
-            print(ele)
+            self.log.debug(ele)
 
     def subscribe(self, ip_address, port, stream):
         if stream not in self.subscribtions:
-            print(f"Stream={stream} is not registered!")
+            self.log.error(f"Stream={stream} is not registered!")
             return None
         connection = self._establish_connection(ip_address, port)
         self._send_create_subscription(connection, stream)
 
         self.subscribtions[stream].append(connection)
+        self.log.info(f"Created subscription for {stream=} from source={(ip_address, port)}")
         loop = asyncio.get_event_loop()
         loop.create_task(self.listen(stream, connection))
 
@@ -149,4 +152,4 @@ class Subscriber:
             connection = connections[0]
             connection.ssh_connection.close()
         else:
-            print("No such connection!")
+            self.log.error("No such connection!")

@@ -13,6 +13,8 @@ parser = argparse.ArgumentParser(
 @unique
 class ArgNames(StrEnum):
     CONFIG_FILE = auto()
+    LOG_LEVEL = auto()
+    LOG_STYLE = auto()
 
 
 @dataclasses.dataclass
@@ -23,6 +25,8 @@ class Args:
     """
 
     config_file: str
+    log_level: str
+    log_style: str
 
 
 parser.add_argument(
@@ -44,6 +48,38 @@ parser.add_argument(
     required=True,
     metavar="PATH",
     help="config file (json)",
+)
+
+parser.add_argument(
+    *[
+        "-ll",
+        "--log-level",
+    ],
+    dest=ArgNames.LOG_LEVEL,
+    type=str,
+    choices=(
+        "info",
+        "debug",
+    ),
+    default="info",
+)
+
+parser.add_argument(
+    *[
+        "-ls",
+        "--log-style",
+    ],
+    dest=ArgNames.LOG_STYLE,
+    type=str,
+    choices=(
+        "raw",
+        "pretty_raw",
+        "xml",
+        "pretty_xml",
+        "json",
+        "pretty_json",
+    ),
+    default="pretty_raw",
 )
 
 
