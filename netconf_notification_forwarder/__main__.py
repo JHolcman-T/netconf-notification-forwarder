@@ -1,15 +1,12 @@
-from netconf_notification_forwarder.server import Server
-from netconf_notification_forwarder.server import settings
-import asyncio, sys, asyncssh
+from netconf_notification_forwarder.app_entrypoint import start
 import netconf_notification_forwarder.cli as cli
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
     arguments = cli.get_arguments()
-    settings = settings.Settings.from_file(arguments.config_file)
-    server = Server("127.0.0.1", 3333, settings)
-    try:
-        loop.run_until_complete(server.start())
-    except (OSError, asyncssh.Error, KeyboardInterrupt) as exc:
-        sys.exit(f"Error: {exc}")
-    loop.run_forever()
+    start(
+        ip_address=arguments.ip_address,
+        port=arguments.port,
+        logging_style=arguments.log_style,
+        logging_level=arguments.log_level,
+        settings_file_path=arguments.config_file,
+    )
