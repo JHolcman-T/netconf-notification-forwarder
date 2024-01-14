@@ -1,6 +1,7 @@
 import argparse
 import dataclasses
 from enum import StrEnum, auto, unique
+from ipaddress import ip_address
 from . import version
 
 
@@ -15,6 +16,8 @@ class ArgNames(StrEnum):
     CONFIG_FILE = auto()
     LOG_LEVEL = auto()
     LOG_STYLE = auto()
+    IP_ADDRESS = auto()
+    PORT = auto()
 
 
 @dataclasses.dataclass
@@ -27,6 +30,8 @@ class Args:
     config_file: str
     log_level: str
     log_style: str
+    ip_address: str
+    port: int
 
 
 parser.add_argument(
@@ -80,6 +85,26 @@ parser.add_argument(
         "pretty_json",
     ),
     default="pretty_raw",
+)
+
+parser.add_argument(
+    *[
+        "-ip",
+        "--ip-address",
+    ],
+    dest=ArgNames.IP_ADDRESS,
+    type=ip_address,
+    default="127.0.0.1",
+)
+
+parser.add_argument(
+    *[
+        "-p",
+        "--port",
+    ],
+    dest=ArgNames.PORT,
+    type=int,
+    default=3333,
 )
 
 
