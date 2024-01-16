@@ -3,6 +3,7 @@ import dataclasses
 from enum import StrEnum, auto, unique
 from ipaddress import ip_address
 from . import version
+from pathlib import Path
 
 
 parser = argparse.ArgumentParser(
@@ -18,6 +19,7 @@ class ArgNames(StrEnum):
     LOG_STYLE = auto()
     IP_ADDRESS = auto()
     PORT = auto()
+    HOST_KEY = auto()
 
 
 @dataclasses.dataclass
@@ -32,6 +34,7 @@ class Args:
     log_style: str
     ip_address: str
     port: int
+    host_key: Path
 
 
 parser.add_argument(
@@ -105,6 +108,16 @@ parser.add_argument(
     dest=ArgNames.PORT,
     type=int,
     default=3333,
+)
+
+parser.add_argument(
+    *[
+        "-hk",
+        "--host-key",
+    ],
+    dest=ArgNames.HOST_KEY,
+    type=Path,
+    required=True,
 )
 
 

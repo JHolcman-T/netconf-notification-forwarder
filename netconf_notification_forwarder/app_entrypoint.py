@@ -4,6 +4,7 @@ from netconf_notification_forwarder.logger import logger
 import asyncio, sys, asyncssh
 from ipaddress import IPv4Address, IPv6Address
 from typing import Union
+from pathlib import Path
 
 
 def start(
@@ -12,9 +13,19 @@ def start(
     logging_level=None,
     logging_style=None,
     settings_file_path=None,
+    host_key: Path = None,
 ):
     # Loop stuff
     loop = asyncio.get_event_loop()
+
+    # Validate stuff
+    if host_key:
+        if host_key.is_file() is False:
+            print(f"Host key path={host_key} is not a file!", file=sys.stderr)
+            exit(-1)
+    else:
+        print(f"Host key is not set!", file=sys.stderr)
+        exit(-1)
 
     # Launch stuff
     if settings_file_path:
@@ -26,9 +37,10 @@ def start(
     if logging_level:
         logger.set_level(logging_level)
     server = Server(
-        str(ip_address),  # ip address must be cast to string type!
-        port,
-        settings,
+        ipaddress=str(ip_address),  # ip address must be cast to string type!
+        port=port,
+        settings=settings,
+        host_key=host_key,
     )
 
     # Loop stuff

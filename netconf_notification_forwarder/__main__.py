@@ -9,4 +9,5 @@ if __name__ == "__main__":
         logging_style=arguments.log_style,
         logging_level=arguments.log_level,
         settings_file_path=arguments.config_file,
+        host_key=arguments.host_key,
     )

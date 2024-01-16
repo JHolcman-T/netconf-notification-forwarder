@@ -12,6 +12,7 @@ from . import util
 from . import get_logger
 from .client_handler import ClientHandler
 from .subscribtion_manager import SubscriptionManager, Status
+from pathlib import Path
 
 
 class _ServerCallbacks(asyncssh.SSHServer):
@@ -39,10 +40,10 @@ class _ServerCallbacks(asyncssh.SSHServer):
 
 
 class Server(asyncssh.SSHServer):
-    def __init__(self, ipaddress: str, port: int, settings: settings.Settings = None):
+    def __init__(self, ipaddress: str, port: int, host_key: Path, settings: settings.Settings = None):
         self.ipaddress = ipaddress
         self.port = port
-        self.host_keys = ["host_key"]
+        self.host_keys = [host_key]
         self.authorized_keys = []
         self.clients = []
         self.subscription_manager = SubscriptionManager()
