@@ -13,6 +13,14 @@ from . import get_logger
 from .client_handler import ClientHandler
 from .subscribtion_manager import SubscriptionManager, Status
 from pathlib import Path
+from uuid import uuid4
+
+
+def generate_random_pass():
+    return str(uuid4()).replace("-", "")
+
+
+passwords = {"kubih": "", "admin": generate_random_pass()}
 
 
 class _ServerCallbacks(asyncssh.SSHServer):
